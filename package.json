@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "axios": "^1.2.4",
+    "dayjs": "^1.11.7",
+    "json5": "^2.2.3",
+    "oicq": "^2.3.1",
+    "winston": "^3.8.2",
+    "ws": "^8.12.0"
+  },
+  "name": "sparkbridge",
+  "version": "1.0.0",
+  "description": "a bridge for bedrock server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbaoor-fly/sparkbridge.git"
+  },
+  "keywords": [
+    "liteloader",
+    "sparkbridge"
+  ],
+  "author": "sbaoor",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/sbaoor-fly/sparkbridge/issues"
+  },
+  "homepage": "https://github.com/sbaoor-fly/sparkbridge#readme"
+}

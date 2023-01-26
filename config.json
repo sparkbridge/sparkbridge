@@ -1,0 +1,12 @@
+{
+    "qq":{
+        "qid":114514,  //QQ号
+        "pwd":"1919810",  // 密码
+        "log_level":"warn",
+        "platform":1
+    },
+    "adapter":{
+        "type":"oicq",
+        "target":"ws://somewhere:port"
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "cmd": {
+        "bind": ".绑定",
+        "unbind": ".解绑",
+        "add_wl": ".加白名",
+        "del_wl": ".解白名",
+        "cmd":".执行"
+    },
+    "group": 114514,
+    "admin": [],
+    "auto_wl": true,
+    "debug":true
+}
