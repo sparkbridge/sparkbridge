@@ -8,7 +8,7 @@
     "ws": "^8.12.0"
   },
   "name": "sparkbridge",
-  "version": "1.0.0",
+  "version": "1.0.1-0",
   "description": "a bridge for bedrock server",
   "main": "index.js",
   "scripts": {
