@@ -66,6 +66,15 @@ function onStart(_adapter){
 	mc.listen('onLeft',(pl)=>{
 		_adapter.sendGroupMsg(group,`${pl.realName} 离开了服务器`);
 	});
+	_adapter.on('bot.notice.group.increase',(e)=>{
+		if(e.group !== group)return;
+		if(_xuid.has(e.user.toString())){
+			_adapter.sendGroupMsg(group,`${e.user} 退出了群聊，撤销其白名单：${_xuid.get(e.user.toString())}`);
+			let id = _xuid.get(e.user.toString());
+			mc.runcmd(`whitelist remove "${id}"`);
+			_xuid.delete(e.user.toString());
+		}
+	})
 	_adapter.on('bot.message.group',(e)=>{
 		if(debug) logger.info(`[${e.group}]${e.sender.nickname} >> ${e.raw_message}`);
 		if(e.group !== group)return;
@@ -144,10 +153,15 @@ function onStart(_adapter){
 				break;
 			case '查服':
 				let re = mc.runcmdEx('list');
-				_adapter.sendGroupMsg(group,re.output);
+				//_adapter.sendGroupMsg(group,re.output);
+				e.reply(re.output);
 				break;
 			default:
-				mc.broadcast(`§l§b群聊 §r${e.sender.nickname}§r >> §e${formatMsg(message)}`);
+				let nick = e.sender.nickname;
+				if(_xuid.has(e.sender.user_id.toString())){
+					nick = _xuid.get(e.sender.user_id.toString());
+				}
+				mc.broadcast(`§l§b群聊 §r${nick}§r >> §e${formatMsg(message)}`);
 				break;
 		}
 	});

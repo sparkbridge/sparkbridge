@@ -6,7 +6,7 @@ const { segment } = require("oicq")
 const winston = require('winston');
 const dayjs = require('dayjs');
 const { exists } = require("../handles/file");
-const { GroupMessageEvent, FriendMessageEvent } = require("../handles/msgBuilder");
+const { GroupMessageEvent, FriendMessageEvent, GroupLeftEvent, GroupJoinEvent } = require("../handles/msgBuilder");
 let today = dayjs();
 class Adapter {
     type = 'oicq';
@@ -59,12 +59,20 @@ class Adapter {
                     });
                     this.client.on('message.group', (e) => {
                         this.logger.info(`${e.group_name} ${e.sender.nickname} >> ${e.raw_message}`);
-                        this.eventEmitter.emit('bot.message.group',new GroupMessageEvent(this.type,e));
+                        this.eventEmitter.emit('bot.message.group',new GroupMessageEvent(this.client.client,this.type,e));
                         this.eventEmitter.emit('bot.pre.message.group', e);
                     });
                     this.client.on('message.private', (e) => {
                         this.eventEmitter.emit('bot.pre.message.private', e);
-                        this.eventEmitter.emit('bot.message.private',new FriendMessageEvent(this.type,e));
+                        this.eventEmitter.emit('bot.message.private',new FriendMessageEvent(this.client.client,this.type,e));
+                    });
+                    this.client.on('notice.group.increase', (e)=>{
+                        this.eventEmitter.emit('bot.pre.notice.group.increase',e);
+                        this.eventEmitter.emit('bot.notice.group.increase',new GroupJoinEvent(this.client.client,this.type,e));
+                    });
+                    this.client.on('notice.group.decrease' ,(e)=>{
+                        this.eventEmitter.emit('bot.pre.notice.group.decrease',e);
+                        this.eventEmitter.emit('bot.notice.group.decrease',new GroupLeftEvent(this.client.client,this.type,e));
                     });
                 })
                 break;
@@ -91,11 +99,25 @@ class Adapter {
                         raw = _data.toString()
                     }
                     const msg_obj = JSON.parse(raw);
+                    console.log(msg_obj);
                     switch(msg_obj.post_type){
                         case 'meta_event':
                             if(msg_obj.self_id != this.qq){
                                 this.eventEmitter.emit('bot.login.fail');
                                 throw new Error('登录的QQ号与go-cqhttp中不符合');
+                            }
+                            break;
+                        case 'notice':
+                            this.eventEmitter.emit('bot.pre.notice',msg_obj);
+                            switch(msg_obj.notice_type){
+                                case 'group_increase':
+                                    this.eventEmitter.emit('bot.pre.notice.group.increase',msg_obj);
+                                    this.eventEmitter.emit('bot.notice.group.increase',new GroupJoinEvent(this.client.ws,this.type,msg_obj));
+                                    break;
+                                case 'group_decrease':
+                                    this.eventEmitter.emit('bot.pre.notice.group.decrease',msg_obj);
+                                    this.eventEmitter.emit('bot.notice.group.decrease',new GroupLeftEvent(this.client.ws,this.type,msg_obj));
+                                    break;
                             }
                             break;
                         case 'message':
@@ -104,7 +126,7 @@ class Adapter {
                                 case 'private':
                                     try{
                                         this.eventEmitter.emit('bot.pre.message.private',msg_obj);
-                                        this.eventEmitter.emit('bot.message.private',new FriendMessageEvent(this.type,msg_obj));
+                                        this.eventEmitter.emit('bot.message.private',new FriendMessageEvent(this.client.ws,this.type,msg_obj));
                                     }catch(err){
                                         this.logger.error('解析私聊消息消息出现异常');
                                         console.log(err);
@@ -113,13 +135,16 @@ class Adapter {
                                 case 'group':
                                     try{
                                         this.eventEmitter.emit('bot.pre.message.group',msg_obj);
-                                        this.eventEmitter.emit('bot.message.group',new GroupMessageEvent(this.type,msg_obj));
+                                        this.eventEmitter.emit('bot.message.group',new GroupMessageEvent(this.client.ws,this.type,msg_obj));
                                     }catch(err){
                                         this.logger.error('解析群聊消息消息出现异常');
                                         console.log(err);
                                     }
                                     break;
                             }
+                            break;
+                        default:
+                            //this.logger.info(`${msg_obj.post_type} ${JSON.stringify(msg_obj)}`);
                             break;
                     }
                 })

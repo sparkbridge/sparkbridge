@@ -100,6 +100,17 @@ class Client {
   },
   message_id: 590357373
 }
+
+{
+  post_type: 'notice',
+  notice_type: 'group_decrease',
+  time: 1674826718,
+  self_id: 2582152047,
+  sub_type: 'kick',
+  group_id: 519916681,
+  operator_id: 2959435045,
+  user_id: 2837945976
+}
 */
 
 module.exports = {Client};
