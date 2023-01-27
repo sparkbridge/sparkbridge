@@ -39,7 +39,7 @@ mc.listen('onServerStarted', () => {
     // 服务器开启，开始执行
     let config = JSON5.parse(file.read('./plugins/sparkbridge/config.json'));
     let { adapter, qq } = config;
-    logger.info('SparkBridge载入中...VERSION:1.0.1');
+    logger.info('SparkBridge载入中...VERSION:1.0.2');
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
     let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);
     _adapter.createClient();
