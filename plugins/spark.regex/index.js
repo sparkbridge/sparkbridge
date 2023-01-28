@@ -65,7 +65,7 @@ function commandParse(cmd,reg,reply,_adapter){
                 }
             }
             break;
-        case 's': //s|list
+        case 's': //s|list:true
             let command = _arg;
             mc.runcmd(buildString(command,reg));
             break;

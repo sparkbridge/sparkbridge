@@ -99,7 +99,6 @@ class Adapter {
                         raw = _data.toString()
                     }
                     const msg_obj = JSON.parse(raw);
-                    console.log(msg_obj);
                     switch(msg_obj.post_type){
                         case 'meta_event':
                             if(msg_obj.self_id != this.qq){
