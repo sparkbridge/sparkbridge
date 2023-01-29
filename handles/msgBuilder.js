@@ -81,15 +81,20 @@ function Group_Reply(type,e,client){
                                 data:{
                                     id: e.message_id
                                 }
-                            },
-                            {
-                                type :'text',
-                                data:{
-                                    text:msg
-                                }
                             }
                         ]
                     }
+                }
+                if(typeof msg == 'string'){
+                    msg = [msg]
+                };
+                if(Array.isArray(msg)){
+                    msg.forEach(m=>{
+                        if(typeof m =='string'){
+                            m = {type:'text',data:{text:m}};
+                        }
+                        d.params.message.push(m);
+                    })
                 }
                 client.send(JSON.stringify(d));
             }

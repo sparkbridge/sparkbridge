@@ -83,7 +83,7 @@ function onStart(_adapter){
 		switch(sp[0]){
 			case cmd.bind:
 				let t = raw_message.substr(cmd.bind.length + 1);
-				if(_xuid.has(sender.user_id)){
+				if(_xuid.has(sender.user_id.toString())){
 					_adapter.sendGroupMsg(group,[_adapter.at(sender.user_id),'你已经绑定过了']);
 				}else{
 					_xuid.set(sender.user_id.toString(),t);

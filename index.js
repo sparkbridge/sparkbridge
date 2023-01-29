@@ -35,14 +35,44 @@ if (file.exists(JSON_PATH) == false) {
     file.copy('./plugins/nodejs/sparkbridge/config.json', JSON_PATH);
 }
 
+
 mc.listen('onServerStarted', () => {
     // 服务器开启，开始执行
+    
     let config = JSON5.parse(file.read('./plugins/sparkbridge/config.json'));
     let { adapter, qq } = config;
-    logger.info('SparkBridge载入中...VERSION:1.0.2');
+    logger.info('SparkBridge载入中...VERSION:1.0.3');
+
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
     let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);
     _adapter.createClient();
+
+    const cmd = mc.newCommand("spark","sparkbridge command",PermType.GameMasters);
+    cmd.setEnum("LoginAction", ["slider"]);
+    cmd.setEnum("ListAction", ["login"]);
+    cmd.mandatory("action", ParamType.Enum, "LoginAction", 1);
+    cmd.mandatory("action", ParamType.Enum, "ListAction", 1);
+    cmd.mandatory("tickit", ParamType.RawText);
+    cmd.overload(["LoginAction", "tickit"]);
+    cmd.overload(["ListAction"]);
+    cmd.setCallback((_cmd, _ori, out, res) => {
+        switch (res.action) {
+            case "slider":
+                if(adapter.type  == 'oicq'){
+                    _adapter.client.client.submitSlider(res.tickit);
+                }else{
+                    return out.error("此方法在gocq环境下不可用");
+                }
+            case "login":
+                if(adapter.type  == 'oicq'){
+                    _adapter.client.client.login();
+                }else{
+                    return out.error("此方法在gocq环境下不可用");
+                }
+        }
+    });
+    cmd.setup();
+
     _adapter.login(qq.pwd);
     _adapter.once('bot.online', () => {
         logger.info('上线成功，开始加载插件');

@@ -8,7 +8,7 @@
     "ws": "^8.12.0"
   },
   "name": "sparkbridge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "a bridge for bedrock server",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sbaoor-fly/sparkbridge.git"
+    "url": "git+https://github.com/sparkbridge/sparkbridge.git"
   },
   "keywords": [
     "liteloader",
@@ -25,7 +25,7 @@
   "author": "sbaoor",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/sbaoor-fly/sparkbridge/issues"
+    "url": "https://github.com/sparkbridge/sparkbridge/issues"
   },
-  "homepage": "https://github.com/sbaoor-fly/sparkbridge#readme"
+  "homepage": "https://github.com/sparkbridge/sparkbridge#readme"
 }
