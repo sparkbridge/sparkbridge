@@ -5,7 +5,7 @@ const ME = require('./package.json');
 const JSON5 = require('json5');
 const winston = require('winston');
 const dayjs = require('dayjs');
-const { Adapter } = require('./sparkbridge');
+const { Adapter } = require('./sparkbridge-core');
 const path = require('path');
 let today = dayjs();
 
@@ -31,7 +31,7 @@ const file = require('./handles/file');
 const JSON_PATH = './plugins/sparkbridge/config.json';
 
 if (file.exists(JSON_PATH) == false) {
-    file.mkdir('./plugins/sparkbridge/plugins/');
+    file.mkdir('./plugins/sparkbridge/');
     file.copy('./plugins/nodejs/sparkbridge/config.json', JSON_PATH);
 }
 
@@ -41,7 +41,7 @@ mc.listen('onServerStarted', () => {
     
     let config = JSON5.parse(file.read('./plugins/sparkbridge/config.json'));
     let { adapter, qq } = config;
-    logger.info('SparkBridge载入中...VERSION:1.0.3');
+    logger.info('SparkBridge载入中...VERSION:1.0.4');
 
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
     let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);

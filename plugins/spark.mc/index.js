@@ -27,31 +27,11 @@ function formatMsg(msg){
 	}).join('');
 }
 
+/**
+ * 
+ * @param {} _adapter 
+ */
 function onStart(_adapter){
-	//发送群聊信息
-	// _adapter.sendGroupMsg(114514,'ok');
-
-	// 发送私聊信息
-	// _adapter.sendFriendMsg(114514,'ok');
-
-	// 生成at方法
-	// _adapter.at(114);
-
-	// 生成图片方法,填网络url或本地path都可以
-	// _adapter.img(path/url);
-
-	// 监听群聊信息
-	// _adapter.on('bot.message.group',(e)=>{
-	//	consle.log(e);	
-	// });
-
-	// 监听私聊信息
-	// _adapter.on('bot.message.private',(e)=>{
-	//	consle.log(e);	
-	// });
-
-	// 组合消息发送
-	// _adapter.sendGroupMsg(114514,['纯文本',_adapter.at(1919810),_adapter.img('https://p1.music.126.net/i_8o_LJRX7knZmwG1spb_w==/109951168160269431.jpg')])
 	const _xuid = new xuiddb('./plugins/sparkbridge/'+info().name+'/data/xuid.json');
 	let {cmd,group,admin,auto_wl,debug} = JSON.parse(read('./plugins/sparkbridge/'+info().name+"/config.json"));
 	_adapter.on('bot.message.private',(e)=>{
