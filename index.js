@@ -41,7 +41,7 @@ mc.listen('onServerStarted', () => {
     
     let config = JSON5.parse(file.read('./plugins/sparkbridge/config.json'));
     let { adapter, qq } = config;
-    logger.info('SparkBridge载入中...VERSION:1.0.4');
+    logger.info('SparkBridge载入中...VERSION:1.0.5');
 
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
     let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);
@@ -72,7 +72,7 @@ mc.listen('onServerStarted', () => {
         }
     });
     cmd.setup();
-
+    logger.info('若需要提交ticket请使用spark slider <ticket> 进行提交，扫码后输入spark login进行登录');
     _adapter.login(qq.pwd);
     _adapter.once('bot.online', () => {
         logger.info('上线成功，开始加载插件');

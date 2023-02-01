@@ -9,5 +9,10 @@
     "group": 114514,
     "admin": [],
     "auto_wl": true,
-    "debug":true
+    "debug":true,
+    "msg":{
+        "join":true,
+        "left":true,
+        "chat":true
+    }
 }

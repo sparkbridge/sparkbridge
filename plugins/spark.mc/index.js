@@ -33,19 +33,28 @@ function formatMsg(msg){
  */
 function onStart(_adapter){
 	const _xuid = new xuiddb('./plugins/sparkbridge/'+info().name+'/data/xuid.json');
-	let {cmd,group,admin,auto_wl,debug} = JSON.parse(read('./plugins/sparkbridge/'+info().name+"/config.json"));
+	let {cmd,group,admin,auto_wl,debug,msg} = JSON.parse(read('./plugins/sparkbridge/'+info().name+"/config.json"));
 	_adapter.on('bot.message.private',(e)=>{
 		if(debug) logger.info(`${e.sender.nickname} >> ${e.raw_message}`);
 	});
-	mc.listen('onChat',(pl,msg)=>{
-		_adapter.sendGroupMsg(group,`${pl.realName} >> ${msg}`);
-	});
-	mc.listen('onJoin',(pl)=>{
-		_adapter.sendGroupMsg(group,`${pl.realName} 加入了服务器`);
-	});
-	mc.listen('onLeft',(pl)=>{
-		_adapter.sendGroupMsg(group,`${pl.realName} 离开了服务器`);
-	});
+	if(msg.join){
+		mc.listen('onJoin',(pl)=>{
+			_adapter.sendGroupMsg(group,`${pl.realName} 加入了服务器`);
+		});
+	}
+	if(msg.left){
+		mc.listen('onLeft',(pl)=>{
+			_adapter.sendGroupMsg(group,`${pl.realName} 离开了服务器`);
+		});
+	}
+	if(msg.chat){
+		mc.listen('onChat',(pl,msg)=>{
+			_adapter.sendGroupMsg(group,`${pl.realName} >> ${msg}`);
+		});
+	}
+
+
+
 	_adapter.on('bot.notice.group.increase',(e)=>{
 		if(e.group !== group)return;
 		if(_xuid.has(e.user.toString())){
