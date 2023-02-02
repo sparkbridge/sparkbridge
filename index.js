@@ -5,7 +5,7 @@ const ME = require('./package.json');
 const JSON5 = require('json5');
 const winston = require('winston');
 const dayjs = require('dayjs');
-const { Adapter } = require('./sparkbridge-core');
+const { Adapter } = require('sparkbridge-core');
 const path = require('path');
 let today = dayjs();
 
