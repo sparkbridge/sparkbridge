@@ -4,12 +4,12 @@
     "dayjs": "^1.11.7",
     "json5": "^2.2.3",
     "oicq": "^2.3.1",
-    "sparkbridge-core": "^1.0.2-1",
+    "sparkbridge-core": "^1.0.2",
     "winston": "^3.8.2",
     "ws": "^8.12.0"
   },
   "name": "sparkbridge",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "a bridge for bedrock server",
   "main": "index.js",
   "scripts": {

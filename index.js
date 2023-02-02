@@ -41,7 +41,7 @@ mc.listen('onServerStarted', () => {
     
     let config = JSON5.parse(file.read('./plugins/sparkbridge/config.json'));
     let { adapter, qq } = config;
-    logger.info('SparkBridge载入中...VERSION:1.0.6');
+    logger.info('SparkBridge载入中...VERSION:1.0.7');
 
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
     let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);
