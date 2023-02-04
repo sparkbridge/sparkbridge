@@ -6,6 +6,9 @@ const JSON5 = require('json5');
 const winston = require('winston');
 const dayjs = require('dayjs');
 const { Adapter } = require('sparkbridge-core');
+const fs = require('fs');
+const mkdir = fs.mkdirSync;
+
 const path = require('path');
 let today = dayjs();
 
@@ -28,12 +31,27 @@ const logger = winston.createLogger({
 });
 
 const file = require('./handles/file');
+const install = require('./handles/plhelper');
 const JSON_PATH = './plugins/sparkbridge/config.json';
 
 if (file.exists(JSON_PATH) == false) {
-    file.mkdir('./plugins/sparkbridge/');
+    mkdir('./plugins/sparkbridge/');
     file.copy('./plugins/nodejs/sparkbridge/config.json', JSON_PATH);
 }
+if(file.exists('./plugins/sparkbridge/plugins')==false){
+    mkdir('./plugins/sparkbridge/plugins');
+}
+
+(async ()=>{
+    if (file.listdir('./plugins/sparkbridge/plugins').length > 0) {
+        let in_pl_list = file.listdir('./plugins/sparkbridge/plugins');
+        logger.info('发现待安装的插件：' + in_pl_list.join(','));
+        for (let p in in_pl_list) {
+            logger.info('安装：'+in_pl_list[p]);
+            await install(in_pl_list[p]);
+        }
+    }
+})()
 
 
 mc.listen('onServerStarted', () => {
@@ -83,8 +101,8 @@ mc.listen('onServerStarted', () => {
             try {
                 if(file.exists(PLUGINS_PATH+_name+'\\config.json')){
                     if(file.exists('./plugins/sparkbridge/'+_name+'/config.json') == false){
-                        file.mkdir('./plugins/sparkbridge/'+_name);
-                        file.mkdir('./plugins/sparkbridge/'+_name+'/data/');
+                        mkdir('./plugins/sparkbridge/'+_name);
+                        mkdir('./plugins/sparkbridge/'+_name+'/data/');
                         file.copy(PLUGINS_PATH+_name+'\\config.json','./plugins/sparkbridge/'+_name+'/config.json');
                     }
                 }
