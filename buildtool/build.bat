@@ -13,3 +13,5 @@ cd ./sparkbridge/buildtool
 cd ../../tmp
 
 REN sparkbridge.zip sparkbridge.llplugin
+
+pause
