@@ -5,3 +5,4 @@ node_modules/
 plugins/
 !plugins/spark.mc
 !plugins/spark.regex
+tmp/
