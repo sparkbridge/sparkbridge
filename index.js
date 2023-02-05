@@ -7,7 +7,7 @@ const winston = require('winston');
 const dayjs = require('dayjs');
 const { Adapter } = require('sparkbridge-core');
 const fs = require('fs');
-const mkdir = fs.mkdirSync;
+const mkdir =(dir)=>{try {fs.mkdirSync(dir)}catch{}};
 
 const path = require('path');
 let today = dayjs();
@@ -38,8 +38,8 @@ if (file.exists(JSON_PATH) == false) {
     mkdir('./plugins/sparkbridge/');
     file.copy('./plugins/nodejs/sparkbridge/config.json', JSON_PATH);
 }
-if(file.exists('./plugins/sparkbridge/plugins')==false){
-    mkdir('./plugins/sparkbridge/plugins');
+if(file.exists('./plugins/sparkbridge/plugins/')==false){
+    mkdir('./plugins/sparkbridge/plugins/');
 }
 
 (async ()=>{

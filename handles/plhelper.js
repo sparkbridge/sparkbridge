@@ -4,6 +4,7 @@ const mkdir = fs.mkdirSync;
 const del_file = fs.rmSync;
 
 async function install(name) {
+    
         let zip_path = './plugins/sparkbridge/plugins/' + name;
 
         let dir_name = name.split('.');
