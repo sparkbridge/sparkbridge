@@ -1,6 +1,6 @@
 {
-    "chat (.+)":{
-        "cmd":"s| tellraw @a {\"rawtext\":[{\"text\":\"$1\"}]}",
+    "我是(.+)":{
+        "cmd":"r|你是$1",
         "adm":false
     }
 }
