@@ -146,6 +146,7 @@ function onStart(_adapter){
 				e.reply(re.output);
 				break;
 			default:
+				if(msg.chat == false)return;
 				let nick = e.sender.nickname;
 				if(_xuid.has(e.sender.user_id.toString())){
 					nick = _xuid.get(e.sender.user_id.toString());
