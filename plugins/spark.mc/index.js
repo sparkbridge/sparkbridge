@@ -1,6 +1,9 @@
 const winston = require('winston');
 const dayjs = require('dayjs');
 const { read, exists, writeTo } = require('../../handles/file');
+const fs = require('fs');
+const mkdir =(dir)=>{try {fs.mkdirSync(dir)}catch{}};
+const moveTo = fs.copyFileSync;
 let today = dayjs();
 
 const logger = winston.createLogger({
@@ -32,8 +35,17 @@ function formatMsg(msg){
  * @param {} _adapter 
  */
 function onStart(_adapter){
-	const _xuid = new xuiddb('./plugins/sparkbridge/'+info().name+'/data/xuid.json');
-	let {cmd,group,admin,auto_wl,debug,msg} = JSON.parse(read('./plugins/sparkbridge/'+info().name+"/config.json"));
+	if(exists('./plugins/sparkbridge/spark.mc/config.json')==false){
+		moveTo(__dirname+'/config.json','./plugins/sparkbridge/spark.mc/config.json');
+		mkdir('./plugins/sparkbridge/spark.mc/data/')
+	}
+	let _xuid = new xuiddb('./plugins/sparkbridge/'+info().name+'/data/xuid.json');
+	spark.XUIDDB = _xuid;
+	let {cmd,group,admin,auto_wl,debug,msg} = spark.JSON5.parse(read('./plugins/sparkbridge/'+info().name+"/config.json"));
+	logger.info('开始构建所需的表...')
+	spark.GROUP = group;
+	spark.ADMINS = admin;
+	spark.DEBUG = debug;
 	_adapter.on('bot.message.private',(e)=>{
 		if(debug) logger.info(`${e.sender.nickname} >> ${e.raw_message}`);
 	});
@@ -69,6 +81,7 @@ function onStart(_adapter){
 		if(e.group !== group)return;
 		let sp = e.raw_message.split(' ');
 		const {raw_message,sender,message} = e;
+		//console.log(sp);
 		switch(sp[0]){
 			case cmd.bind:
 				let t = raw_message.substr(cmd.bind.length + 1);
@@ -140,7 +153,7 @@ function onStart(_adapter){
 					})
 				}
 				break;
-			case '查服':
+			case cmd.query:
 				let re = mc.runcmdEx('list');
 				//_adapter.sendGroupMsg(group,re.output);
 				e.reply(re.output);
@@ -194,4 +207,6 @@ function info(){
 		version: [0,0,1]
 	}
 }
+
+
 module.exports = {onStart,info,formatMsg}

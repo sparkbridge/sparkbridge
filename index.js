@@ -63,8 +63,7 @@ mc.listen('onServerStarted', () => {
 
     // 全局方法
     global.spark = {};
-    
-
+    global.spark.JSON5 = require('json5');
 
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
     let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);
@@ -102,10 +101,13 @@ mc.listen('onServerStarted', () => {
         //console.log(spark.regCmd); 
 
         logger.info('上线成功，开始加载插件');
+        // 创建底层信息
+        require('./plugins/spark.mc').onStart(_adapter);
         const PLUGINS_PATH = path.join(__dirname, 'plugins\\');
         const plugins_list = file.listdir(PLUGINS_PATH);
         for (let pl in plugins_list) {
             let _name = plugins_list[pl];
+            if(_name == 'spark.mc')continue;
             try {
                 if(file.exists(PLUGINS_PATH+_name+'\\config.json')){
                     if(file.exists('./plugins/sparkbridge/'+_name+'/config.json') == false){
