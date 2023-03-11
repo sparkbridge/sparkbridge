@@ -63,7 +63,8 @@ mc.listen('onServerStarted', () => {
 
     // 全局方法
     global.spark = {};
-    global.spark.JSON5 = require('json5');
+    spark.VERSION = ME.VERSION;
+    spark.JSON5 = require('json5');
 
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
     let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);
@@ -96,35 +97,41 @@ mc.listen('onServerStarted', () => {
     cmd.setup();
     logger.info('若需要提交ticket请使用spark slider <ticket> 进行提交，扫码后输入spark login进行登录');
     _adapter.login(qq.pwd);
+    const PLUGINS_PATH = path.join(__dirname, 'plugins\\');
+    const plugins_list = file.listdir(PLUGINS_PATH);
+    const laodPlugin = (_name) =>{
+        try {
+            if(file.exists(PLUGINS_PATH+_name+'\\config.json')){
+                if(file.exists('./plugins/sparkbridge/'+_name+'/config.json') == false){
+                    mkdir('./plugins/sparkbridge/'+_name);
+                    mkdir('./plugins/sparkbridge/'+_name+'/data/');
+                    file.copy(PLUGINS_PATH+_name+'\\config.json','./plugins/sparkbridge/'+_name+'/config.json');
+                }
+            }
+            let pl_obj = require('./plugins/'+_name);
+            const {name,author} = pl_obj.info();
+            logger.info(`加载 ${name}`);
+            pl_obj.onStart(_adapter);
+            logger.info(`${name} 加载完成，作者：${author}`);
+        } catch (err) {
+            console.log(err);
+            logger.error(`插件 ${_name} 加载失败`);
+        }
+    }
     _adapter.once('bot.online', () => {
 
         //console.log(spark.regCmd); 
 
         logger.info('上线成功，开始加载插件');
         // 创建底层信息
-        require('./plugins/spark.mc').onStart(_adapter);
-        const PLUGINS_PATH = path.join(__dirname, 'plugins\\');
-        const plugins_list = file.listdir(PLUGINS_PATH);
+        laodPlugin('spark.mc');
+        laodPlugin('spark.regex');
+
         for (let pl in plugins_list) {
             let _name = plugins_list[pl];
             if(_name == 'spark.mc')continue;
-            try {
-                if(file.exists(PLUGINS_PATH+_name+'\\config.json')){
-                    if(file.exists('./plugins/sparkbridge/'+_name+'/config.json') == false){
-                        mkdir('./plugins/sparkbridge/'+_name);
-                        mkdir('./plugins/sparkbridge/'+_name+'/data/');
-                        file.copy(PLUGINS_PATH+_name+'\\config.json','./plugins/sparkbridge/'+_name+'/config.json');
-                    }
-                }
-                let pl_obj = require('./plugins/'+_name);
-                const {name,author} = pl_obj.info();
-                logger.info(`加载 ${name}`);
-                pl_obj.onStart(_adapter);
-                logger.info(`${name} 加载完成，作者：${author}`);
-            } catch (err) {
-                console.log(err);
-                logger.error(`插件 ${_name} 加载失败`);
-            }
+            if(_name == 'spark.regex')continue;
+            laodPlugin(_name)
         }
     })
 })

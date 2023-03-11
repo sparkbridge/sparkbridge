@@ -18,17 +18,17 @@ const logger = winston.createLogger({
  * @param {RegExpMatchArray} reg 
  * @returns 
  */
-function buildString(str, reg,e) {
+function buildString(str, reg, e) {
     var i = 0;
     reg.forEach(s => {
         str = str.replace(`\$${i}`, s);
         i++
     });
-    if(str.includes("%")){
+    if (str.includes("%")) {
         str = str.replace('%NICKNAME%', e.sender.nickname);
         str = str.replace('%XBOXID%', spark.XUIDDB.get(e.sender.user_id.toString()));
-        str = str.replace("%CARD%",e.sender.card);
-        str = str.replace('%NAME%', spark.XUIDDB.get(e.sender.user_id.toString()) == undefined ? e.sender.nickname : e.sender.nickname);
+        str = str.replace("%CARD%", e.sender.card);
+        str = str.replace('%NAME%', spark.XUIDDB.get(e.sender.user_id.toString()) == undefined ? e.sender.nickname : spark.XUIDDB.get(e.sender.user_id.toString()));
     }
     return str;
 }
@@ -51,7 +51,7 @@ function runCmd(_first, _args, reg, e, adapter) {
 }
 
 regCmd('reply', (_arg, reg, e, adapter) => {
-    let txt1 = buildString(_arg, reg,e);
+    let txt1 = buildString(_arg, reg, e);
     e.reply(txt1);
 });
 
@@ -62,7 +62,7 @@ regCmd('f', (_arg, reg, e, adapter) => {
     }
     let target = t_and_a[0];
     let arg = t_and_a[1];
-    adapter.sendFriendMsg(Number(target), buildString(arg, reg,e))
+    adapter.sendFriendMsg(Number(target), buildString(arg, reg, e))
 });
 
 regCmd('g', (_arg, reg, e, adapter) => {
@@ -72,7 +72,7 @@ regCmd('g', (_arg, reg, e, adapter) => {
     }
     let target = t_and_a[0];
     let arg = t_and_a[1];
-    adapter.sendGroupMsg(Number(target), buildString(arg, reg,e))
+    adapter.sendGroupMsg(Number(target), buildString(arg, reg, e))
 })
 
 regCmd('t', (arg, reg, e, adapter) => {
@@ -84,14 +84,14 @@ regCmd('t', (arg, reg, e, adapter) => {
     } else {
         let top = mc.getPlayer(tp);
         if (top) {
-            top.tell(buildString(ms, reg,e));
+            top.tell(buildString(ms, reg, e));
         }
     }
 })
 regCmd('run', (arg, reg, e, adapter) => {
     let command = arg;
-    let r= mc.runcmdEx(buildString(command, reg,e));
-    e.reply(r.success ? r.output : command+'执行失败');
+    let r = mc.runcmdEx(buildString(command, reg, e));
+    e.reply(r.success ? r.output : command + '执行失败');
 })
 /**
  * 
@@ -109,18 +109,58 @@ function commandParse(cmd, reg, e, _adapter) {
     runCmd(_first, _arg, reg, e, _adapter);
 }
 
+function buildPlaceHolder(raw) {
+    let out_raw = [];
+    // 是否正在匹配
+    let matching = false;
+    // 正在匹配的字符串
+    let matching_now = '';
+    // 是否跳过当前转义
+    let skip_next = false;
+    for (let i in raw) {
+        let now_i = raw[i];
+        console.log('匹配：'+now_i);
+        if(skip_next == false){ // 需要进行变量判断
+            if(now_i == '\\'){  // 需要直接写入下一位
+               skip_next = true;
+               console.log('跳过判断下一位');
+            }else if(now_i == '%'){
+                // 开始或者结束匹配变量
+                if(matching){
+                    matching = false;
+                    out_raw.push({type:'holder',raw:matching_now});
+                    matching_now = '';
+                }else{
+                    matching = true;
+                }
+            }else{
+                if(matching){
+                    matching_now += now_i;
+                }else{
+                    out_raw.push({type:'plan',raw:now_i})
+                }
+            }
+        }else{ //需要直接写入当前字符串
+            out_raw.push({type:'plan',raw:now_i})
+            skip_next = false;
+        }
+    }
+    return out_raw;
+}
+
 function onStart(_adapter) {
     let group = spark.GROUP;
     let admin = spark.ADMINS;
     let config = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + '/config.json'));
     _adapter.on('bot.message.group', (e) => {
         if (e.group !== group) return;
-        if(e.raw_message == '重载正则'){
-            try{
+        if (e.raw_message == '重载正则') {
+            if (spark.ADMINS.includes(e.sender.user_id) == false) return;
+            try {
                 config = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + '/config.json'));
                 e.reply("正则表达式已重载");
-            }catch(errr){
-                e.reply('重载失败：'+errr.toString());
+            } catch (errr) {
+                e.reply('重载失败：' + errr.toString());
             }
         }
         let raw = formatMsg(e.message);
