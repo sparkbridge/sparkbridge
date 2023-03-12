@@ -25,12 +25,18 @@ function buildString(str, reg, e) {
         i++
     });
     if (str.includes("%")) {
-        str = str.replace('%NICKNAME%', e.sender.nickname);
-        str = str.replace('%XBOXID%', spark.XUIDDB.get(e.sender.user_id.toString()));
-        str = str.replace("%CARD%", e.sender.card);
-        str = str.replace('%NAME%', spark.XUIDDB.get(e.sender.user_id.toString()) == undefined ? e.sender.nickname : spark.XUIDDB.get(e.sender.user_id.toString()));
+        let str_arr = buildPlaceHolder(str);
+        return str_arr.map((t)=>{
+            if(t.type == 'holder'){
+                return getPlaceHolder(t.raw,e);
+            }else{
+                return t.raw;
+            }
+        }).join("");
+    }else{
+        return str;
     }
-    return str;
+
 }
 
 
@@ -109,6 +115,51 @@ function commandParse(cmd, reg, e, _adapter) {
     runCmd(_first, _arg, reg, e, _adapter);
 }
 
+const PlaceHolders = new Map();
+
+function regPlaceHolder(key,recall){
+    PlaceHolders.set(key,recall);
+}
+
+spark.regPlaceHolder = regPlaceHolder;
+
+regPlaceHolder('NAME',(e)=>{
+    return spark.XUIDDB.get(e.sender.user_id.toString()) == undefined ? e.sender.nickname : spark.XUIDDB.get(e.sender.user_id.toString()) 
+});
+
+regPlaceHolder('NICKNAME',(e)=>{
+    return e.sender.nickname;
+});
+
+regPlaceHolder('XBOXID',e=>{
+    return spark.XUIDDB.get(e.sender.user_id.toString());
+})
+
+async function test_time(){
+    return new Promise((res,rej)=>{
+        setTimeout(() => {
+            res();
+        }, 3e3);
+    })
+}
+
+regPlaceHolder('WAIT',async (e)=>{
+    await test_time();
+    return 'ok';
+})
+
+regPlaceHolder('CARD',e=>{
+    return e.sender.card;
+})
+
+function getPlaceHolder(key,e){
+    if(PlaceHolders.has(key)){
+        return PlaceHolders.get(key)(e);
+    }else{
+        return 'null';
+    }
+}
+
 function buildPlaceHolder(raw) {
     let out_raw = [];
     // 是否正在匹配
@@ -119,11 +170,11 @@ function buildPlaceHolder(raw) {
     let skip_next = false;
     for (let i in raw) {
         let now_i = raw[i];
-        console.log('匹配：'+now_i);
+        //console.log('匹配：'+now_i);
         if(skip_next == false){ // 需要进行变量判断
             if(now_i == '\\'){  // 需要直接写入下一位
                skip_next = true;
-               console.log('跳过判断下一位');
+               //console.log('跳过判断下一位');
             }else if(now_i == '%'){
                 // 开始或者结束匹配变量
                 if(matching){

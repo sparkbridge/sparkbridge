@@ -67,16 +67,20 @@ mc.listen('onServerStarted', () => {
     spark.JSON5 = require('json5');
 
     logger.info(`准备使用适配器：${adapter.type} 登录账号：${qq.qid}`);
-    let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target);
+    let _adapter = new Adapter(adapter.type, qq.qid, qq.platform, qq.log_level,adapter.target,null);
     _adapter.createClient();
 
     const cmd = mc.newCommand("spark","sparkbridge command",PermType.GameMasters);
     cmd.setEnum("LoginAction", ["slider"]);
+    cmd.setEnum("CodeAction", ["mscode"]);
     cmd.setEnum("ListAction", ["login"]);
     cmd.mandatory("action", ParamType.Enum, "LoginAction", 1);
     cmd.mandatory("action", ParamType.Enum, "ListAction", 1);
+    cmd.mandatory("action", ParamType.Enum, "CodeAction", 1);
     cmd.mandatory("tickit", ParamType.RawText);
+    cmd.mandatory("mscode", ParamType.RawText);
     cmd.overload(["LoginAction", "tickit"]);
+    cmd.overload(["CodeAction", "mscode"]);
     cmd.overload(["ListAction"]);
     cmd.setCallback((_cmd, _ori, out, res) => {
         switch (res.action) {
@@ -92,6 +96,10 @@ mc.listen('onServerStarted', () => {
                 }else{
                     return out.error("此方法在gocq环境下不可用");
                 }
+            case 'mscode':
+                _adapter.client.client.submitSmsCode(res.mscode);
+                break;
+
         }
     });
     cmd.setup();
