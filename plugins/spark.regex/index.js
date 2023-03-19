@@ -206,7 +206,10 @@ function onStart(_adapter) {
     _adapter.on('bot.message.group', (e) => {
         if (e.group !== group) return;
         if (e.raw_message == '重载正则') {
-            if (spark.ADMINS.includes(e.sender.user_id) == false) return;
+            if (spark.ADMINS.includes(e.sender.user_id) == false) {
+            e.reply("失败了捏，可能是没有管理员权限");
+            return;
+            }
             try {
                 config = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + '/config.json'));
                 e.reply("正则表达式已重载");
@@ -219,6 +222,7 @@ function onStart(_adapter) {
             let tmp = raw.match(reg_it);
             if (tmp == null) continue;
             if (config[reg_it].adm && !admin.includes(e.sender.user_id)) {
+                e.reply("失败了捏，可能是没有管理员权限");
                 return;
             }
             try {
