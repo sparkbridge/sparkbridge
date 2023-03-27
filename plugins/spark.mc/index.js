@@ -67,7 +67,7 @@ function onStart(_adapter){
 
 
 
-	_adapter.on('bot.notice.group.increase',(e)=>{
+	_adapter.on('bot.notice.group.decrease',(e)=>{
 		if(e.group !== group)return;
 		if(_xuid.has(e.user.toString())){
 			_adapter.sendGroupMsg(group,`${e.user} 退出了群聊，撤销其白名单：${_xuid.get(e.user.toString())}`);
