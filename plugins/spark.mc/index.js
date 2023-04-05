@@ -85,6 +85,10 @@ function onStart(_adapter){
 		switch(sp[0]){
 			case cmd.bind:
 				let t = raw_message.substr(cmd.bind.length + 1);
+				if(_xuid.hasXbox(t)){
+					e.reply('这个xboxid已经被绑定过了！');
+					return;
+				}
 				if(_xuid.has(sender.user_id.toString())){
 					_adapter.sendGroupMsg(group,[_adapter.at(sender.user_id),'你已经绑定过了']);
 				}else{
@@ -196,6 +200,15 @@ class xuiddb{
 	}
 	#save(){
 		writeTo(this.pt,JSON.stringify(Object.fromEntries(this.db.entries())));
+	}
+	hasXbox(xboxid){
+		for(let  i in this.db){
+			let tmp = this.db[i];
+			if(tmp == xboxid){
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

@@ -86,7 +86,8 @@ mc.listen('onServerStarted', () => {
         switch (res.action) {
             case "slider":
                 if(adapter.type  == 'oicq'){
-                    _adapter.client.client.submitSlider(res.tickit);
+                    console.log(res.tickit.trim());
+                    _adapter.client.client.submitSlider(res.tickit.trim());
                 }else{
                     return out.error("此方法在gocq环境下不可用");
                 }
@@ -97,7 +98,12 @@ mc.listen('onServerStarted', () => {
                     return out.error("此方法在gocq环境下不可用");
                 }
             case 'mscode':
-                _adapter.client.client.submitSmsCode(res.mscode);
+                if(_adapter.type  == 'oicq'){
+                    _adapter.client.client.submitSmsCode(res.mscode);
+                }else{
+                    return out.error("此方法在gocq环境下不可用");
+                }
+
                 break;
 
         }
