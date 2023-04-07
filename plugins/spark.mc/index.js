@@ -46,6 +46,11 @@ function onStart(_adapter){
 	spark.GROUP = group;
 	spark.ADMINS = admin;
 	spark.DEBUG = debug;
+        function SendMsg(msg) {
+		_adapter.sendGroupMsg(group, msg);
+	}
+	ll.export(SendMsg, "msg", "sendGroupMessage");
+
 	_adapter.on('bot.message.private',(e)=>{
 		if(debug) logger.info(`${e.sender.nickname} >> ${e.raw_message}`);
 	});
