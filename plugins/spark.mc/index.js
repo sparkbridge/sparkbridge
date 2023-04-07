@@ -49,7 +49,7 @@ function onStart(_adapter){
         function SendMsg(msg) {
 		_adapter.sendGroupMsg(group, msg);
 	}
-	ll.export(SendMsg, "msg", "sendGroupMessage");
+	ll.export(SendMsg, "SparkAPI", "sendGroupMessage");
 
 	_adapter.on('bot.message.private',(e)=>{
 		if(debug) logger.info(`${e.sender.nickname} >> ${e.raw_message}`);
