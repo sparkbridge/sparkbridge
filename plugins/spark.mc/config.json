@@ -17,5 +17,8 @@
         "inputLimit": 40,
         "outputLimit": 60,
         "chat":true
-    }
+    },
+    "prohibited": [
+        "114514"
+      ]
 }
