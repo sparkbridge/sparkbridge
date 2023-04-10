@@ -41,7 +41,7 @@ function onStart(_adapter) {
 	}
 	let _xuid = new xuiddb('./plugins/sparkbridge/' + info().name + '/data/xuid.json');
 	spark.XUIDDB = _xuid;
-	let { cmd, group, admin, auto_wl, debug, msg, } = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + "/config.json"));
+	let { cmd, group, admin, auto_wl, debug, msg, prohibited } = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + "/config.json"));
 	logger.info('开始构建所需的表...')
 	spark.GROUP = group;
 	spark.ADMINS = admin;
@@ -49,6 +49,7 @@ function onStart(_adapter) {
 
 	const outputLimit = msg.outputLimit;
 	const inputLimit = msg.inputLimit;
+	const wordData = prohibited;
 
 	function SendMsg(msg) {
 		_adapter.sendGroupMsg(group, msg);
@@ -70,16 +71,20 @@ function onStart(_adapter) {
 	}
 	if (msg.chat) {
 		mc.listen('onChat', (pl, msg) => {
-			const OutMsg = msg;
-			if (OutMsg.length >= outputLimit) {
-				_adapter.sendGroupMsg(group, `${pl.realName} 仅转发了,他输入的字数 ${OutMsg.length}`);
-			} else {
-				_adapter.sendGroupMsg(group, `${pl.realName} >> ${OutMsg}`);
+			let msgOut = msg;
+			for (let index = 0; index < wordData.length; index++) {
+				const element = wordData[index];
+				if (msgOut.indexOf(element) !== -1) {
+					msgOut = '转发失败因为内容包含违禁词';
+					break;
+				}
 			}
-		});
+			if (msg.length >= outputLimit) {
+				msgOut = '转发失败因为内容字数过多';
+			}
+			_adapter.sendGroupMsg(group, `${pl.realName} >> ${msgOut}`)
+		})
 	}
-
-
 
 	_adapter.on('bot.notice.group.decrease', (e) => {
 		if (e.group !== group) return;
@@ -182,14 +187,22 @@ function onStart(_adapter) {
 				if (_xuid.has(e.sender.user_id.toString())) {
 					nick = _xuid.get(e.sender.user_id.toString());
 				}
+				let msgOut = formatMsg(message);
+				for (let index = 0; index < wordData.length; index++) {
+					const element = wordData[index];
+					if (msgOut.indexOf(element) !== -1) {
+						msgOut = '转发失败因为内容包含违禁词';
+						_adapter.sendGroupMsg(group, `${msgOut}`)
+						break;
+					}
+				}
 				if (formatMsg(message).length >= inputLimit) {
-					_adapter.sendGroupMsg(group, `转发失败最大转发字数限制为${inputLimit}`);
-					return
+					msgOut = '转发失败因为内容字数过多';
+					_adapter.sendGroupMsg(group, `${msgOut}`)
 				}
-				else {
-					mc.broadcast(`§l§b群聊 §r${nick} §r >> §e${formatMsg(message)}`);
-					break;
-				}
+				mc.broadcast(`§l§b群聊 §r${nick} §r >> §e${msgOut}`);
+				break;
+
 		}
 	});
 }
