@@ -5,10 +5,11 @@ const fs = require('fs');
 const mkdir = (dir) => { try { fs.mkdirSync(dir) } catch { } };
 const moveTo = fs.copyFileSync;
 let today = dayjs();
+require('events').EventEmitter.defaultMaxListeners = 20;
 
 const logger = winston.createLogger({
 	format: winston.format.printf((info) => {
-		return `${today.format("YYYY-MM-DD h:mm:ss")} [${info.level}] spark.mc | ${info.message}`
+		return `${today.format("YYYY-MM-DD h:mm:ss")} [${info.level}] spark.mc | ${info.message}`;
 	}),
 	transports: [
 		new winston.transports.Console()
@@ -61,12 +62,18 @@ function onStart(_adapter) {
 	});
 	if (msg.join) {
 		mc.listen('onJoin', (pl) => {
-			_adapter.sendGroupMsg(group, `${pl.realName} 加入了服务器`);
+			if (pl.isSimulatedPlayer()) {
+			} else {
+				_adapter.sendGroupMsg(group, `${pl.realName} 加入了服务器`);
+			}
 		});
 	}
 	if (msg.left) {
 		mc.listen('onLeft', (pl) => {
-			_adapter.sendGroupMsg(group, `${pl.realName} 离开了服务器`);
+			if (pl.isSimulatedPlayer()) {
+			} else {
+				_adapter.sendGroupMsg(group, `${pl.realName} 离开了服务器`);
+			}
 		});
 	}
 	if (msg.chat) {
@@ -82,7 +89,7 @@ function onStart(_adapter) {
 			if (msg.length >= outputLimit) {
 				msgOut = '转发失败因为内容字数过多';
 			}
-			_adapter.sendGroupMsg(group, `${pl.realName} >> ${msgOut}`)
+			_adapter.sendGroupMsg(group, `${pl.realName} >> ${msgOut}`);
 		})
 	}
 
@@ -192,13 +199,13 @@ function onStart(_adapter) {
 					const element = wordData[index];
 					if (msgOut.indexOf(element) !== -1) {
 						msgOut = '转发失败因为内容包含违禁词';
-						_adapter.sendGroupMsg(group, `${msgOut}`)
+						_adapter.sendGroupMsg(group, `${msgOut}`);
 						break;
 					}
 				}
 				if (formatMsg(message).length >= inputLimit) {
 					msgOut = '转发失败因为内容字数过多';
-					_adapter.sendGroupMsg(group, `${msgOut}`)
+					_adapter.sendGroupMsg(group, `${msgOut}`);
 				}
 				mc.broadcast(`§l§b群聊 §r${nick} §r >> §e${msgOut}`);
 				break;
