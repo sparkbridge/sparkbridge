@@ -61,12 +61,18 @@ function onStart(_adapter) {
 	});
 	if (msg.join) {
 		mc.listen('onJoin', (pl) => {
-			_adapter.sendGroupMsg(group, `${pl.realName} 加入了服务器`);
+			if (pl.isSimulatedPlayer()) {
+			} else {
+				_adapter.sendGroupMsg(group, `${pl.realName} 加入了服务器`);
+			}
 		});
 	}
 	if (msg.left) {
 		mc.listen('onLeft', (pl) => {
-			_adapter.sendGroupMsg(group, `${pl.realName} 离开了服务器`);
+			if (pl.isSimulatedPlayer()) {
+			} else {
+				_adapter.sendGroupMsg(group, `${pl.realName} 离开了服务器`);
+			}
 		});
 	}
 	if (msg.chat) {
