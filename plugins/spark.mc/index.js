@@ -15,7 +15,6 @@ const logger = winston.createLogger({
 		new winston.transports.Console()
 	]
 });
-
 function formatMsg(msg) {
 	return msg.map(t => {
 		switch (t.type) {
@@ -42,14 +41,35 @@ function onStart(_adapter) {
 	}
 	let _xuid = new xuiddb('./plugins/sparkbridge/' + info().name + '/data/xuid.json');
 	spark.XUIDDB = _xuid;
-	let { cmd, group, admin, auto_wl, debug, msg, prohibited } = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + "/config.json"));
+	let { cmd, group, admin, auto_wl, debug, msg } = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + "/config.json"));
 	logger.info('开始构建所需的表...')
 	spark.GROUP = group;
 	spark.ADMINS = admin;
 	spark.DEBUG = debug;
 
-	const outputLimit = msg.outputLimit;
-	const inputLimit = msg.inputLimit;
+	function formatJsonFile(filePath) {
+		const content = fs.readFileSync(filePath, 'utf-8');
+		let config = JSON.parse(content);
+		if (config.prohibited == undefined) {
+			config.prohibited = ['114514'];
+			logger.info(`wordData配置项不存在,已自动添加`);
+		}
+		if (config.msg.outputLimit == undefined) {
+			config.msg.outputLimit = 80;
+			logger.info(`outputLimit配置项不存在,已自动添加`);
+		}
+		if (config.msg.inputLimit == undefined) {
+			config.msg.inputLimit = 80;
+			logger.info(`inputLimit配置项不存在,已自动添加`);
+		}
+		formatted = JSON.stringify(config, null, 2);
+		fs.writeFileSync(filename, formatted);
+		return config;
+	}
+
+	const filename = './plugins/sparkbridge/spark.mc/config.json';
+	const config = formatJsonFile(filename);
+	const { prohibited, msg: { outputLimit = 60, inputLimit = 40 } } = config;
 	const wordData = prohibited;
 
 	function SendMsg(msg) {
@@ -80,7 +100,7 @@ function onStart(_adapter) {
 		mc.listen('onChat', (pl, msg) => {
 			let msgOut = msg;
 			for (let index = 0; index < wordData.length; index++) {
-				const element = wordData[index];
+				let element = wordData[index];
 				if (msgOut.indexOf(element) !== -1) {
 					msgOut = '转发失败因为内容包含违禁词';
 					break;
@@ -91,6 +111,7 @@ function onStart(_adapter) {
 			}
 			_adapter.sendGroupMsg(group, `${pl.realName} >> ${msgOut}`);
 		})
+
 	}
 
 	_adapter.on('bot.notice.group.decrease', (e) => {
@@ -237,14 +258,14 @@ class xuiddb {
 	}
 	delete(qq) {
 		this.db.delete(qq);
+		this.#save();
 	}
 	#save() {
 		writeTo(this.pt, JSON.stringify(Object.fromEntries(this.db.entries())));
 	}
 	hasXbox(xboxid) {
-		for (let i in this.db) {
-			let tmp = this.db[i];
-			if (tmp == xboxid) {
+		for (let item of this.db.values()) {
+			if (item == xboxid) {
 				return true;
 			}
 		}
