@@ -237,6 +237,7 @@ class xuiddb {
 	}
 	delete(qq) {
 		this.db.delete(qq);
+		this.#save();
 	}
 	#save() {
 		writeTo(this.pt, JSON.stringify(Object.fromEntries(this.db.entries())));
