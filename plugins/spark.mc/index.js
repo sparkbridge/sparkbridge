@@ -237,14 +237,14 @@ class xuiddb {
 	}
 	delete(qq) {
 		this.db.delete(qq);
+		this.#save();
 	}
 	#save() {
 		writeTo(this.pt, JSON.stringify(Object.fromEntries(this.db.entries())));
 	}
 	hasXbox(xboxid) {
-		for (let i in this.db) {
-			let tmp = this.db[i];
-			if (tmp == xboxid) {
+		for (let item of this.db.values()) {
+			if (item == xboxid) {
 				return true;
 			}
 		}
