@@ -1,17 +1,18 @@
-name: Build plugin
-
+name: Build and Publish Plugin
 on:
   push:
-
+    branches: [ main ]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v2
-
-      - name: Install dependencies
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
         run: npm install
-
-      - name: Build plugin
+      - name: Build Plugin
+        run: npm run build
+      - name: Publish Plugin
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-plugin
+          path: dist/my-plugin.llplugin
