@@ -1,18 +1,41 @@
-name: Build and Publish Plugin
+name: Node.js CI
+
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [ 16.x]
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Install Dependencies
-        run: npm install
-      - name: Build Plugin
-        run: npm run build
-      - name: Publish Plugin
-        uses: actions/upload-artifact@v2
-        with:
-          name: my-plugin
-          path: dist/my-plugin.llplugin
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: cd ../
+    - run: mkdir tmp
+    - run: mkdir "tmp/sparkbridge"
+    - name: Copy SparkBridge files
+      run: xcopy sparkbridge "tmp/sparkbridge" /s /e /exclude:%cd%\sparkbridge\buildtool\pack.config
+    - run: cd ./sparkbridge/buildtool
+    - run: echo %cd%
+    - name: Compress Sparkbridge files
+      run: 7za.exe a ../../tmp/sparkbridge.zip ../../tmp/sparkbridge/*
+    - run: cd ../../tmp
+    - run: rename sparkbridge.zip sparkbridge.llplugin
+
+    - name: Upload Action File
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: sparkbridge
+        path: ./tmp/sparkbridge.llplugin
+        
