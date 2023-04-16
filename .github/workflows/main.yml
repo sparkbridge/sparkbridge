@@ -27,7 +27,7 @@ jobs:
           mkdir tmp/sparkbridge
       - name: Copy SparkBridge files
         run: |
-          xcopy sparkbridge tmp/sparkbridge /s /e /exclude:%cd%\sparkbridge\buildtool\pack.config
+          xcopy sparkbridge tmp\sparkbridge /s /e /exclude:%cd%\sparkbridge\buildtool\pack.config
         shell: cmd
       - name: Compress Sparkbridge files
         run: |
