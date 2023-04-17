@@ -67,6 +67,10 @@ function onStart(_adapter) {
 		return config;
 	}
 
+	function escape(str) {
+		return str.replace('&#91;', '[').replace('&#93;', ']');
+	}
+
 	const filename = './plugins/sparkbridge/spark.mc/config.json';
 	const config = formatJsonFile(filename);
 	const { prohibited, msg: { outputLimit = 60, inputLimit = 40 } } = config;
@@ -111,7 +115,6 @@ function onStart(_adapter) {
 			}
 			_adapter.sendGroupMsg(group, `${pl.realName} >> ${msgOut}`);
 		})
-
 	}
 
 	_adapter.on('bot.notice.group.decrease', (e) => {
@@ -160,9 +163,10 @@ function onStart(_adapter) {
 			case cmd.cmd:
 				if (admin.includes(sender.user_id)) {
 					let t2 = raw_message.substr(cmd.cmd.length + 1);
-					_adapter.sendGroupMsg(group, '正在执行：' + t2);
+					const t3 = escape(t2);
+					_adapter.sendGroupMsg(group, '正在执行：' + t3);
 					try {
-						let re = mc.runcmdEx(t2);
+						let re = mc.runcmdEx(t3);
 						if (re.success) {
 							_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), re.output]);
 						} else {
