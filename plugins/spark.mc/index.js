@@ -42,17 +42,19 @@ function onStart(_adapter) {
 	let _xuid = new xuiddb('./plugins/sparkbridge/' + info().name + '/data/xuid.json');
 	spark.XUIDDB = _xuid;
 	let { cmd, group, admin, auto_wl, debug, msg } = spark.JSON5.parse(read('./plugins/sparkbridge/' + info().name + "/config.json"));
+	let { qq } = spark.JSON5.parse(read('./plugins/sparkbridge/config.json'));
 	logger.info('开始构建所需的表...')
 	spark.GROUP = group;
 	spark.ADMINS = admin;
 	spark.DEBUG = debug;
 
 	function formatJsonFile(filePath) {
-		const content = fs.readFileSync(filePath, 'utf-8');
+		let content = fs.readFileSync(filePath, 'utf-8');
 		let config = JSON.parse(content);
+		
 		if (config.prohibited == undefined) {
 			config.prohibited = ['114514'];
-			logger.info(`wordData配置项不存在,已自动添加`);
+			logger.info(`prohibited配置项不存在,已自动添加`);
 		}
 		if (config.msg.outputLimit == undefined) {
 			config.msg.outputLimit = 80;
@@ -71,10 +73,9 @@ function onStart(_adapter) {
 		return str.replace('&#91;', '[').replace('&#93;', ']');
 	}
 
-	const filename = './plugins/sparkbridge/spark.mc/config.json';
-	const config = formatJsonFile(filename);
-	const { prohibited, msg: { outputLimit = 60, inputLimit = 40 } } = config;
-	const wordData = prohibited;
+	let filename = './plugins/sparkbridge/spark.mc/config.json';
+	let config = formatJsonFile(filename);
+	let { prohibited, msg: { outputLimit = 60, inputLimit = 40 } } = config;
 
 	function SendMsg(msg) {
 		_adapter.sendGroupMsg(group, msg);
@@ -103,8 +104,8 @@ function onStart(_adapter) {
 	if (msg.chat) {
 		mc.listen('onChat', (pl, msg) => {
 			let msgOut = msg;
-			for (let index = 0; index < wordData.length; index++) {
-				let element = wordData[index];
+			for (let index = 0; index < prohibited.length; index++) {
+				let element = prohibited[index];
 				if (msgOut.indexOf(element) !== -1) {
 					msgOut = '转发失败因为内容包含违禁词';
 					break;
@@ -131,9 +132,13 @@ function onStart(_adapter) {
 		if (e.group !== group) return;
 		let sp = e.raw_message.split(' ');
 		const { raw_message, sender, message } = e;
-		//console.log(sp);
 		switch (sp[0]) {
 			case cmd.bind:
+				if (sender.user_id.toString() == qq.qid.toString()) {
+					log(qq.qid.toString())
+					e.reply('绑定错误，请重试');
+					return;
+				}
 				let t = raw_message.substr(cmd.bind.length + 1);
 				if (_xuid.hasXbox(t)) {
 					e.reply('这个xboxid已经被绑定过了！');
@@ -220,8 +225,8 @@ function onStart(_adapter) {
 					nick = _xuid.get(e.sender.user_id.toString());
 				}
 				let msgOut = formatMsg(message);
-				for (let index = 0; index < wordData.length; index++) {
-					const element = wordData[index];
+				for (let index = 0; index < prohibited.length; index++) {
+					const element = prohibited[index];
 					if (msgOut.indexOf(element) !== -1) {
 						msgOut = '转发失败因为内容包含违禁词';
 						_adapter.sendGroupMsg(group, `${msgOut}`);
@@ -238,7 +243,6 @@ function onStart(_adapter) {
 		}
 	});
 }
-
 
 class xuiddb {
 	db;
