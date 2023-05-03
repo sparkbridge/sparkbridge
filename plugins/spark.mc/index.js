@@ -51,7 +51,7 @@ function onStart(_adapter) {
 	function formatJsonFile(filePath) {
 		let content = fs.readFileSync(filePath, 'utf-8');
 		let config = JSON.parse(content);
-		
+
 		if (config.prohibited == undefined) {
 			config.prohibited = ['114514'];
 			logger.info(`prohibited配置项不存在,已自动添加`);
@@ -135,7 +135,6 @@ function onStart(_adapter) {
 		switch (sp[0]) {
 			case cmd.bind:
 				if (sender.user_id.toString() == qq.qid.toString()) {
-					log(qq.qid.toString())
 					e.reply('绑定错误，请重试');
 					return;
 				}
