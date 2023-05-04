@@ -4,11 +4,11 @@ const { read, exists, writeTo } = require('../../handles/file');
 const fs = require('fs');
 const mkdir = (dir) => { try { fs.mkdirSync(dir) } catch { } };
 const moveTo = fs.copyFileSync;
-let today = dayjs();
 require('events').EventEmitter.defaultMaxListeners = 20;
 
 const logger = winston.createLogger({
 	format: winston.format.printf((info) => {
+		let today = dayjs();
 		return `${today.format("YYYY-MM-DD h:mm:ss")} [${info.level}] spark.mc | ${info.message}`;
 	}),
 	transports: [
