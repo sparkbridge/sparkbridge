@@ -106,7 +106,7 @@ function onStart(_adapter) {
 			let msgOut = msg;
 			for (let index = 0; index < prohibited.length; index++) {
 				let element = prohibited[index];
-				if (msgOut.indexOf(element) !== -1) {
+				if (msgOut.indexOf(element) !== -1 && prohibited[index] != "") {
 					msgOut = '转发失败因为内容包含违禁词';
 					break;
 				}
@@ -226,7 +226,7 @@ function onStart(_adapter) {
 				let msgOut = formatMsg(message);
 				for (let index = 0; index < prohibited.length; index++) {
 					const element = prohibited[index];
-					if (msgOut.indexOf(element) !== -1) {
+					if (msgOut.indexOf(element) !== -1 && prohibited[index] != "") {
 						msgOut = '转发失败因为内容包含违禁词';
 						_adapter.sendGroupMsg(group, `${msgOut}`);
 						break;
