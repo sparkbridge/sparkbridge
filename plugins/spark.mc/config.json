@@ -10,7 +10,7 @@
     "group": 114514,
     "admin": [1919810],
     "auto_wl": true,
-    "debug":true,
+    "debug":false,
     "msg":{
         "join":true,
         "left":true,
@@ -19,6 +19,6 @@
         "chat":true
     },
     "prohibited": [
-        "114514"
+        "傻逼"
       ]
 }
