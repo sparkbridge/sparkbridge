@@ -107,12 +107,12 @@ function onStart(_adapter) {
 			for (let index = 0; index < prohibited.length; index++) {
 				let element = prohibited[index];
 				if (msgOut.indexOf(element) !== -1 && prohibited[index] != "") {
-					msgOut = '转发失败因为内容包含违禁词';
+					msgOut = '转发失败，内容包含违禁词';
 					break;
 				}
 			}
 			if (msg.length >= outputLimit) {
-				msgOut = '转发失败因为内容字数过多';
+				msgOut = '转发失败，内容字数过多';
 			}
 			_adapter.sendGroupMsg(group, `${pl.realName} >> ${msgOut}`);
 		})
@@ -140,26 +140,26 @@ function onStart(_adapter) {
 				}
 				let t = raw_message.substr(cmd.bind.length + 1);
 				if (_xuid.hasXbox(t)) {
-					e.reply('这个xboxid已经被绑定过了！');
+					e.reply('这个XboxId已经被绑定过了！');
 					return;
 				}
 				if (_xuid.has(sender.user_id.toString())) {
 					_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '你已经绑定过了']);
 				} else {
 					_xuid.set(sender.user_id.toString(), t);
-					_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '白名单绑定成功']);
 					if (auto_wl) {
 						mc.runcmd(`allowlist add "${t}"`);
-						_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '已将你的白名单添加到服务器']);
+						_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '玩家绑定成功，已将你的白名单添加到服务器']);
+					} else {
+						_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '已将你的ID提交至服务器，等待审核中']);
 					}
 				}
 				break;
 			case cmd.unbind:
 				if (_xuid.has(sender.user_id.toString())) {
-					_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '白名单解绑成功']);
 					mc.runcmd(`allowlist remove "${_xuid.get(sender.user_id.toString())}"`);
 					_xuid.delete(sender.user_id.toString());
-					_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '已将白名单从服务器移除']);
+					_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '玩家解绑成功，已将白名单从服务器移除']);
 				} else {
 					_adapter.sendGroupMsg(group, [_adapter.at(sender.user_id), '你还没绑定白名单']);
 				}
@@ -168,7 +168,6 @@ function onStart(_adapter) {
 				if (admin.includes(sender.user_id)) {
 					let t2 = raw_message.substr(cmd.cmd.length + 1);
 					const t3 = escape(t2);
-					_adapter.sendGroupMsg(group, '正在执行：' + t3);
 					try {
 						let re = mc.runcmdEx(t3);
 						if (re.success) {
@@ -214,7 +213,6 @@ function onStart(_adapter) {
 				break;
 			case cmd.query:
 				let re = mc.runcmdEx('list');
-				//_adapter.sendGroupMsg(group,re.output);
 				e.reply(re.output);
 				break;
 			default:
@@ -227,13 +225,13 @@ function onStart(_adapter) {
 				for (let index = 0; index < prohibited.length; index++) {
 					const element = prohibited[index];
 					if (msgOut.indexOf(element) !== -1 && prohibited[index] != "") {
-						msgOut = '转发失败因为内容包含违禁词';
+						msgOut = '转发失败，内容包含违禁词';
 						_adapter.sendGroupMsg(group, `${msgOut}`);
 						break;
 					}
 				}
 				if (formatMsg(message).length >= inputLimit) {
-					msgOut = '转发失败因为内容字数过多';
+					msgOut = '转发失败，内容字数过多';
 					_adapter.sendGroupMsg(group, `${msgOut}`);
 				}
 				mc.broadcast(`§l§b群聊 §r${nick} §r >> §e${msgOut}`);
